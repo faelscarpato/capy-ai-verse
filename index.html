@@ -1,24 +1,171 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>capy-ai-verse</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <title>CapyUniverse - AI Powered Tools</title>
+    <meta name="description" content="Plataforma mobile-first de ferramentas de IA generativa integrada com Google Gemini. Produtividade, aprendizado e criatividade na palma da sua mão." />
+    <meta name="author" content="CapyUniverse Team" />
+    <meta name="keywords" content="IA, inteligência artificial, Gemini, produtividade, educação, PWA, mobile-first, ferramentas" />
 
-    <meta property="og:title" content="capy-ai-verse" />
-    <meta property="og:description" content="Lovable Generated Project" />
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#6750A4" />
+    <meta name="background-color" content="#1E1B4B" />
+    <meta name="display" content="standalone" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="CapyUniverse" />
+    <meta name="msapplication-TileColor" content="#6750A4" />
+    <meta name="msapplication-tap-highlight" content="no" />
+
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:title" content="CapyUniverse - AI Powered Tools" />
+    <meta property="og:description" content="Plataforma mobile-first de ferramentas de IA generativa integrada com Google Gemini." />
+    <meta property="og:image" content="https://capyuniverse.app/og-image.png" />
+    <meta property="og:url" content="https://capyuniverse.app" />
+    <meta property="og:site_name" content="CapyUniverse" />
 
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:title" content="CapyUniverse - AI Powered Tools" />
+    <meta name="twitter:description" content="Plataforma mobile-first de ferramentas de IA generativa integrada com Google Gemini." />
+    <meta name="twitter:image" content="https://capyuniverse.app/twitter-image.png" />
+    
+    <!-- Preconnect to external domains for performance -->
+    <link rel="preconnect" href="https://generativelanguage.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Performance optimized fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Prevent flash of unstyled content -->
+    <style>
+      html { 
+        background-color: #1E1B4B; 
+        color: white; 
+        font-family: 'Inter', sans-serif; 
+      }
+      body { 
+        margin: 0; 
+        overflow-x: hidden; 
+      }
+      .loading-screen { 
+        position: fixed; 
+        inset: 0; 
+        background: linear-gradient(135deg, #6750A4, #60A5FA); 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        z-index: 9999; 
+      }
+      .loading-spinner { 
+        width: 48px; 
+        height: 48px; 
+        border: 4px solid rgba(255,255,255,0.3); 
+        border-top: 4px solid white; 
+        border-radius: 50%; 
+        animation: spin 1s linear infinite; 
+      }
+      @keyframes spin { 
+        0% { transform: rotate(0deg); } 
+        100% { transform: rotate(360deg); } 
+      }
+    </style>
   </head>
 
   <body>
+    <!-- Loading screen mostrada durante carregamento inicial -->
+    <div id="loading-screen" class="loading-screen">
+      <div class="loading-spinner"></div>
+    </div>
+    
     <div id="root"></div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      // Remove loading screen quando React carregar
+      window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          const loading = document.getElementById('loading-screen');
+          if (loading) {
+            loading.style.opacity = '0';
+            loading.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => loading.remove(), 300);
+          }
+        }, 1000);
+      });
+
+      // Registra service worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('SW registrado:', registration.scope);
+            })
+            .catch(error => {
+              console.log('SW registration failed:', error);
+            });
+        });
+      }
+
+      // PWA Install prompt
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        console.log('PWA install prompt ready');
+      });
+
+      // Handle install button click (pode ser usado no app)
+      window.installPWA = async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log(`User response: ${outcome}`);
+          deferredPrompt = null;
+        }
+      };
+
+      // Performance monitoring
+      if ('performance' in window) {
+        window.addEventListener('load', () => {
+          setTimeout(() => {
+            const perfData = performance.getEntriesByType('navigation')[0];
+            console.log(`Page load time: ${perfData.loadEventEnd - perfData.loadEventStart}ms`);
+          }, 0);
+        });
+      }
+
+      // Disable context menu on touch devices for better UX
+      document.addEventListener('contextmenu', (e) => {
+        if ('ontouchstart' in window) {
+          e.preventDefault();
+        }
+      });
+
+      // Prevent zoom on double tap for iOS Safari
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', (event) => {
+        const now = new Date().getTime();
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, false);
+
+      // Handle hardware back button on Android
+      if ('standalone' in navigator || window.matchMedia('(display-mode: standalone)').matches) {
+        history.pushState(null, null, location.href);
+        window.addEventListener('popstate', () => {
+          history.pushState(null, null, location.href);
+        });
+      }
+    </script>
+    
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
