@@ -30,6 +30,16 @@ import capyResumoHero from '@/assets/capyresumo-hero.jpg';
 import capyExplicaHero from '@/assets/capyexplica-hero.jpg';
 import capyIdeIcon from '@/assets/capyide-icon.jpg';
 
+// Importação dos modais das ferramentas
+import { 
+  CapyResumoModal, 
+  CapyExplicaModal, 
+  CapyIDEModal, 
+  CapyFlashcardsModal, 
+  CapyIMGModal, 
+  CapyChatModal 
+} from './ToolModals';
+
 // Dados reais das ferramentas do CapyUniverse
 const toolsData = [
   {
@@ -102,6 +112,9 @@ export default function CapyUniverse() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedAccordion, setExpandedAccordion] = useState<string | null>(null);
+
+  // Estados para os modais das ferramentas
+  const [activeToolModal, setActiveToolModal] = useState<string | null>(null);
 
   // Estados para interações touch
   const [isPulling, setIsPulling] = useState(false);
@@ -197,42 +210,9 @@ export default function CapyUniverse() {
     const tool = toolsData.find(t => t.id === toolId);
     if (!tool) return;
 
-    // Para exemplo, vamos usar um prompt simples
-    let finalPrompt = tool.prompts[0];
-    
-    // Substitui placeholders com dados de exemplo ou input do usuário
-    if (customInput) {
-      finalPrompt = finalPrompt.replace(/\${[^}]+}/g, customInput);
-    } else {
-      // Dados de exemplo para demonstração
-      finalPrompt = finalPrompt
-        .replace('${textToSummarize}', 'A inteligência artificial está revolucionando diversos setores...')
-        .replace('${conceptToExplain}', 'machine learning')
-        .replace('${language}', 'JavaScript')
-        .replace('${description}', 'uma calculadora simples')
-        .replace('${topic}', 'história do Brasil')
-        .replace('${imageDescription}', 'um pôr do sol no oceano')
-        .replace('${userMessage}', 'Olá! Como você pode me ajudar hoje?');
-    }
-
-    const result = await callGeminiAPI(finalPrompt);
-    
-    // Exibe o resultado
-    toast({
-      title: `${tool.name} - Resultado`,
-      description: result.slice(0, 100) + (result.length > 100 ? '...' : ''),
-    });
-
-    // Salva no histórico (localStorage)
-    const history = JSON.parse(localStorage.getItem('capyuniverse-history') || '[]');
-    history.unshift({
-      id: Date.now(),
-      tool: tool.name,
-      prompt: finalPrompt,
-      result: result,
-      timestamp: new Date().toISOString()
-    });
-    localStorage.setItem('capyuniverse-history', JSON.stringify(history.slice(0, 20))); // Mantém últimos 20
+    // Abre o modal específico da ferramenta
+    setActiveToolModal(toolId);
+    setIsFabSheetOpen(false); // Fecha FAB sheet se estiver aberto
   };
 
   // Alterna favorito
@@ -876,10 +856,10 @@ export default function CapyUniverse() {
             
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: 'Resumir', icon: FileText, action: () => handleToolAction('capyresumo') },
-                { label: 'Explicar', icon: Brain, action: () => handleToolAction('capyexplica') },
-                { label: 'Flashcards', icon: Sparkles, action: () => handleToolAction('capyflashcards') },
-                { label: 'Gerar Código', icon: Code2, action: () => handleToolAction('capyide') }
+                { label: 'Resumir', icon: FileText, action: () => setActiveToolModal('capyresumo') },
+                { label: 'Explicar', icon: Brain, action: () => setActiveToolModal('capyexplica') },
+                { label: 'Flashcards', icon: Sparkles, action: () => setActiveToolModal('capyflashcards') },
+                { label: 'Gerar Código', icon: Code2, action: () => setActiveToolModal('capyide') }
               ].map((item) => (
                 <Button
                   key={item.label}
@@ -901,6 +881,49 @@ export default function CapyUniverse() {
 
       <FloatingActionButton />
       <BottomNav />
+
+      {/* Modais das Ferramentas */}
+      <CapyResumoModal 
+        isOpen={activeToolModal === 'capyresumo'}
+        onClose={() => setActiveToolModal(null)}
+        toolId="capyresumo"
+        onApiCall={callGeminiAPI}
+      />
+
+      <CapyExplicaModal 
+        isOpen={activeToolModal === 'capyexplica'}
+        onClose={() => setActiveToolModal(null)}
+        toolId="capyexplica"
+        onApiCall={callGeminiAPI}
+      />
+
+      <CapyIDEModal 
+        isOpen={activeToolModal === 'capyide'}
+        onClose={() => setActiveToolModal(null)}
+        toolId="capyide"
+        onApiCall={callGeminiAPI}
+      />
+
+      <CapyFlashcardsModal 
+        isOpen={activeToolModal === 'capyflashcards'}
+        onClose={() => setActiveToolModal(null)}
+        toolId="capyflashcards"
+        onApiCall={callGeminiAPI}
+      />
+
+      <CapyIMGModal 
+        isOpen={activeToolModal === 'capyimg'}
+        onClose={() => setActiveToolModal(null)}
+        toolId="capyimg"
+        onApiCall={callGeminiAPI}
+      />
+
+      <CapyChatModal 
+        isOpen={activeToolModal === 'capychat'}
+        onClose={() => setActiveToolModal(null)}
+        toolId="capychat"
+        onApiCall={callGeminiAPI}
+      />
     </div>
   );
 }
